@@ -39,6 +39,7 @@ namespace UnityStandardAssets.Water
         // camera will just work!
         public void OnWillRenderObject()
         {
+            Debug.LogError("OnWillRenderObject " + Time.realtimeSinceStartup);
             if (!enabled || !GetComponent<Renderer>() || !GetComponent<Renderer>().sharedMaterial ||
                 !GetComponent<Renderer>().enabled)
             {
@@ -64,6 +65,9 @@ namespace UnityStandardAssets.Water
             m_HardwareWaterSupport = FindHardwareWaterSupport();
             WaterMode mode = GetWaterMode();
 
+            // 根据当前相机创建反射相机，纹理和折射相机，纹理
+            // 相机: 带skybox组件和FlareLayer
+            // 纹理：深度缓冲16bit
             Camera reflectionCamera, refractionCamera;
             CreateWaterObjects(cam, out reflectionCamera, out refractionCamera);
 
@@ -78,6 +82,7 @@ namespace UnityStandardAssets.Water
                 QualitySettings.pixelLightCount = 0;
             }
 
+            // 把当前相机的参数给反射相机和折射相机
             UpdateCameraModes(cam, reflectionCamera);
             UpdateCameraModes(cam, refractionCamera);
 
