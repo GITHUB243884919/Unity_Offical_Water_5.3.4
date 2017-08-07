@@ -90,9 +90,16 @@ namespace UnityStandardAssets.Water
             if (mode >= WaterMode.Reflective)
             {
                 // Reflect camera around reflection plane
+                // 获得反射纹理的几个流程
+                //     1.反射摄像机的反射矩阵
+                //     2.反射摄像机的投影矩阵
+                //     3.反射摄像机x旋转下
+                //     4.渲染到纹理
+                // 通过构建发射平面进而构建反射矩阵，并将反射矩阵设置成反射摄像机的worldToCameraMatrix
+                //     反射平面： 所在GameObject的法线（向上）和点（就选所在GameObject的位置）
+
                 float d = -Vector3.Dot(normal, pos) - clipPlaneOffset;
                 Vector4 reflectionPlane = new Vector4(normal.x, normal.y, normal.z, d);
-
                 Matrix4x4 reflection = Matrix4x4.zero;
                 CalculateReflectionMatrix(ref reflection, reflectionPlane);
                 Vector3 oldpos = cam.transform.position;
@@ -101,6 +108,13 @@ namespace UnityStandardAssets.Water
 
                 // Setup oblique projection matrix so that near plane is our reflection
                 // plane. This way we clip everything below/above it for free.
+                // 投影矩阵
+                // 参考http://www.cnblogs.com/wantnon/p/4569096.html
+                //     也就是说，oblique投影矩阵与普通投影矩阵（透视投影矩阵和正交投影矩阵）的差别是：普通投影矩阵所描述的视截体近平面与锥轴垂直，
+                //     而oblique投影矩阵所描述的视截体近平面是斜的（与锥轴不垂直）。
+                //     由于水面是反射面，所以渲染反射图象时必须以视截体被水面所截的截面作为视口，即“斜视口”，
+                //     所以必须将反射相机转化成oblique投影模式。
+                //     reflectionCamera.projectionMatrix = cam.CalculateObliqueMatrix(clipPlane)就是干这个事儿。
                 Vector4 clipPlane = CameraSpacePlane(reflectionCamera, pos, normal, 1.0f);
                 reflectionCamera.projectionMatrix = cam.CalculateObliqueMatrix(clipPlane);
 
@@ -110,6 +124,7 @@ namespace UnityStandardAssets.Water
 				GL.invertCulling = !oldCulling;
                 reflectionCamera.transform.position = newpos;
                 Vector3 euler = cam.transform.eulerAngles;
+                //反射是镜像，x转一下
                 reflectionCamera.transform.eulerAngles = new Vector3(-euler.x, euler.y, euler.z);
                 reflectionCamera.Render();
                 reflectionCamera.transform.position = oldpos;
