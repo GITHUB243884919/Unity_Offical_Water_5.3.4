@@ -39,14 +39,19 @@ namespace UnityStandardAssets.Water
         // camera will just work!
         public void OnWillRenderObject()
         {
-            Debug.LogError("OnWillRenderObject " + Time.realtimeSinceStartup);
+            Debug.Log("OnWillRenderObject " + Time.realtimeSinceStartup);
             if (!enabled || !GetComponent<Renderer>() || !GetComponent<Renderer>().sharedMaterial ||
                 !GetComponent<Renderer>().enabled)
             {
                 return;
             }
 
+            // 这里为什么不是Camera.main而是Camera.current？
+            // 因为Camera.main相当于我们的眼睛
+            // 后面的camera是在处理反射相机和折射相机
+            // 相当于眼睛长在水面上
             Camera cam = Camera.current;
+            //Camera cam = Camera.main;
             if (!cam)
             {
                 return;
@@ -126,7 +131,11 @@ namespace UnityStandardAssets.Water
                 Vector3 euler = cam.transform.eulerAngles;
                 //反射是镜像，x转一下
                 reflectionCamera.transform.eulerAngles = new Vector3(-euler.x, euler.y, euler.z);
+                Debug.Log("Pre reflection.Camera.Render() Camera.current = " + Camera.current.gameObject.GetInstanceID() +
+                    " main " + Camera.main.gameObject.GetInstanceID() + " " + Time.realtimeSinceStartup);
                 reflectionCamera.Render();
+                Debug.Log("Post reflection.Camera.Render()  Camera.current = " + Camera.current.gameObject.GetInstanceID() +
+                    " main " + Camera.main.gameObject.GetInstanceID() + " " + Time.realtimeSinceStartup);
                 reflectionCamera.transform.position = oldpos;
                 GL.invertCulling = oldCulling;
                 GetComponent<Renderer>().sharedMaterial.SetTexture("_ReflectionTex", m_ReflectionTexture);
@@ -146,7 +155,11 @@ namespace UnityStandardAssets.Water
                 refractionCamera.targetTexture = m_RefractionTexture;
                 refractionCamera.transform.position = cam.transform.position;
                 refractionCamera.transform.rotation = cam.transform.rotation;
+                Debug.Log("Pre refractionCamera.Render() Camera.current = " + Camera.current.gameObject.GetInstanceID() +
+                    " main " + Camera.main.gameObject.GetInstanceID() + " " + Time.realtimeSinceStartup);
                 refractionCamera.Render();
+                Debug.Log("Post refractionCamera.Render() Camera.current = " + Camera.current.gameObject.GetInstanceID() +
+                    " main " + Camera.main.gameObject.GetInstanceID() + " " + Time.realtimeSinceStartup);
                 GetComponent<Renderer>().sharedMaterial.SetTexture("_RefractionTex", m_RefractionTexture);
             }
 
@@ -275,6 +288,7 @@ namespace UnityStandardAssets.Water
         // On-demand create any objects we need for water
         void CreateWaterObjects(Camera currentCamera, out Camera reflectionCamera, out Camera refractionCamera)
         {
+            Debug.Log("CreateWaterObjects " + Time.realtimeSinceStartup);
             WaterMode mode = GetWaterMode();
 
             reflectionCamera = null;
@@ -300,6 +314,7 @@ namespace UnityStandardAssets.Water
                 m_ReflectionCameras.TryGetValue(currentCamera, out reflectionCamera);
                 if (!reflectionCamera) // catch both not-in-dictionary and in-dictionary-but-deleted-GO
                 {
+                    // 创建一个带Camera和Skybox的GameObject
                     GameObject go = new GameObject("Water Refl Camera id" + GetInstanceID() + " for " + currentCamera.GetInstanceID(), typeof(Camera), typeof(Skybox));
                     reflectionCamera = go.GetComponent<Camera>();
                     reflectionCamera.enabled = false;
@@ -308,6 +323,11 @@ namespace UnityStandardAssets.Water
                     reflectionCamera.gameObject.AddComponent<FlareLayer>();
                     go.hideFlags = HideFlags.HideAndDontSave;
                     m_ReflectionCameras[currentCamera] = reflectionCamera;
+                    Debug.Log("m_ReflectionCameras.Count = " + m_ReflectionCameras.Count + " "
+                        + go.GetInstanceID() + " " 
+                        + currentCamera.GetInstanceID() + " " + currentCamera.tag + " "
+                        + GetInstanceID() + " "
+                        + Time.realtimeSinceStartup);
                 }
             }
 
@@ -341,6 +361,11 @@ namespace UnityStandardAssets.Water
                     refractionCamera.gameObject.AddComponent<FlareLayer>();
                     go.hideFlags = HideFlags.HideAndDontSave;
                     m_RefractionCameras[currentCamera] = refractionCamera;
+                    Debug.Log("m_RefractionCameras.Count = " + m_RefractionCameras.Count + " "
+                        + go.GetInstanceID() + " "
+                        + currentCamera.GetInstanceID() + " " + currentCamera.tag + " "
+                        + GetInstanceID() + " "
+                        + Time.realtimeSinceStartup);
                 }
             }
         }
