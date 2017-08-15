@@ -10,6 +10,17 @@ namespace UnityStandardAssets.Water
         Low = 0,
     }
 
+    /// <summary>
+    /// 实现的是渲染配置
+    ///     设置三档品质
+    ///         通过sharedMaterial.shader.maximumLOD来配置。
+    ///     是否使用EdgeBlend,并做相应的设置
+    ///         判断当前系统是否支持深度纹理depth textures
+    ///             SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.Depth)
+    ///         摄像机设置
+    ///             Camera.main.depthTextureMode |= DepthTextureMode.Depth;
+    ///             相机可以建立一个屏幕空间深度纹理。这个主要用于图像后期处理效果。注意，这个比较费。
+    /// </summary>
     [ExecuteInEditMode]
     public class WaterBase : MonoBehaviour
     {

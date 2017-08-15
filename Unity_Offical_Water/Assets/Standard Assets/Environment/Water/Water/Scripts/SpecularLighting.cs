@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace UnityStandardAssets.Water
 {
+    /// <summary>
+    /// Water4Simple
+    ///     把传入的一个Transform的forward当成高光的方向。
+    ///         public Transform specularLight
+    /// </summary>
     [RequireComponent(typeof(WaterBase))]
     [ExecuteInEditMode]
     public class SpecularLighting : MonoBehaviour

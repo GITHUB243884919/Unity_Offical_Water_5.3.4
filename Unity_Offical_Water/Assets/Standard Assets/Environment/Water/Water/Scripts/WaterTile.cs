@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace UnityStandardAssets.Water
 {
+    /// <summary>
+    /// Water4Simple
+    ///     在OnWillRenderObject函数中进行渲染，也是跟Water.cs类似。感觉相当于把Water.cs拆分成了WaterTile.cs和PlanarReflection.cs
+    /// </summary>
     [ExecuteInEditMode]
     public class WaterTile : MonoBehaviour
     {

@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace UnityStandardAssets.Water
 {
+    /// <summary>
+    /// Water4Simple
+    ///     创建反射相机，反射材质，类似Water.cs 但是这里只有反射相关，没有折射
+    /// </summary>
     [ExecuteInEditMode]
     [RequireComponent(typeof(WaterBase))]
     public class PlanarReflection : MonoBehaviour
@@ -40,6 +44,9 @@ namespace UnityStandardAssets.Water
             {
                 go.AddComponent(typeof(Camera));
             }
+            //add 隐藏摄像机----------------------
+            go.hideFlags = HideFlags.HideAndDontSave;
+            //----------------------------------
             Camera reflectCamera = go.GetComponent<Camera>();
 
             reflectCamera.backgroundColor = clearColor;
