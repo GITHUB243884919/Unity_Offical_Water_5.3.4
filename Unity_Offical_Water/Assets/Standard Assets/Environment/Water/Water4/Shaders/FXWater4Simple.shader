@@ -77,9 +77,12 @@ CGINCLUDE
 
 	// textures
 	sampler2D _BumpMap;
+    //反射用的摄像机纹理类似于WaterPro（用water.cs那个）
 	sampler2D _ReflectionTex;
+    //折射用的是GrabPass { "_RefractionTex" }，这个跟WaterPro的处理方法就不一样的
 	sampler2D _RefractionTex;
 	sampler2D _ShoreTex;
+    //深度纹理，在c#中设置摄像机参数开启深度纹理
 	sampler2D_float _CameraDepthTexture;
 
 	// colors in use
@@ -169,8 +172,10 @@ CGINCLUDE
 		half4 screenWithOffset = i.screenPos + distortOffset;
 		half4 grabWithOffset = i.grabPassPos + distortOffset;
 		
+        //从折射纹理中取出的，没有uv偏移，就是正常取
 		half4 rtRefractionsNoDistort = tex2Dproj(_RefractionTex, UNITY_PROJ_COORD(i.grabPassPos));
 		half refrFix = SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(grabWithOffset));
+        //从折射纹理中取出的，带uv偏移
 		half4 rtRefractions = tex2Dproj(_RefractionTex, UNITY_PROJ_COORD(grabWithOffset));
 		
 		#ifdef WATER_REFLECTIVE
